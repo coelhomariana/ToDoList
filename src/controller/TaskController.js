@@ -1,5 +1,6 @@
 const { json } = require("body-parser");
 const TaskModel = require("../model/TaskModel");
+const { startOfDay, endOfDay } = require("date-fns");
 
 const currentDate = new Date();
 
@@ -88,6 +89,20 @@ class TaskController {
       })
       .catch((error) => {
         res.status(500).json(error);
+      });
+  }
+
+  async today(req, res) {
+    await TaskModel.find({
+      macaddress: { $in: req.body.macaddress },
+      when: { $gte: startOfDay(currentDate), $lte: endOfDay(currentDate) },
+    })
+      .sort("when")
+      .then((response) => {
+        return res.status(200).json(response);
+      })
+      .catch((error) => {
+        return res.status(500).json(error);
       });
   }
 }
