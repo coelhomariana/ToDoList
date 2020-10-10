@@ -1,6 +1,8 @@
 const { json } = require("body-parser");
 const TaskModel = require("../model/TaskModel");
 
+const currentDate = new Date();
+
 class TaskController {
   async create(req, res) {
     const task = new TaskModel(req.body);
@@ -72,6 +74,20 @@ class TaskController {
       })
       .catch((error) => {
         return res.status(500).json(error);
+      });
+  }
+
+  async late(req, res) {
+    await TaskModel.find({
+      when: { $lt: currentDate },
+      macaddress: { $in: req.body.macaddress },
+    })
+      .sort("when")
+      .then((response) => {
+        return res.status(200).json(response);
+      })
+      .catch((error) => {
+        res.status(500).json(error);
       });
   }
 }
